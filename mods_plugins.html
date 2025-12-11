@@ -20,250 +20,270 @@
                 <span class="text-2xl font-extrabold text-white">Craft<span class="text-yellow-400">Kit</span></span>
             </a>
             <div class="space-x-4">
+                <a href="mods_plugins.html" class="px-4 py-2 text-yellow-400 font-semibold rounded-lg bg-gray-700/50 transition duration-300 text-sm hidden sm:inline-block">Annuaire Mods</a>
                 <a href="login.html" class="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg font-semibold hover:bg-yellow-400 transition duration-300 text-sm">Connexion</a>
             </div>
         </nav>
     </header>
 
-    <!-- Contenu Principal -->
-    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-10">
-                <svg class="w-12 h-12 text-yellow-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6h6m3 6v2m0-6h6m-3-2a2 2 0 100-4m0 4a2 2 0 110-4m0 0V4"></path></svg>
-                <h1 class="text-4xl font-extrabold mb-2 text-white">Annuaire Modrinth Connecté</h1>
-                <p class="text-gray-400">Liste des 200 projets les plus populaires, alimentée par Modrinth.</p>
-            </div>
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 class="text-4xl font-extrabold text-white mb-8 text-center">Annuaire Connecté Modrinth</h1>
 
-            <!-- Barre de Recherche et Filtres (Simulation) -->
-            <div class="bg-gray-800 p-6 rounded-xl shadow-xl mb-8 border border-gray-700">
-                <input type="text" id="search-input" placeholder="Rechercher un mod ou un plugin parmi les 200 projets chargés..."
-                       class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-yellow-500 focus:border-yellow-500 transition duration-150"
-                       onkeyup="filterResults()">
-            </div>
-
-            <!-- Liste des Plugins/Mods -->
-            <div id="results-container" class="space-y-4">
-                <div class="text-center py-8 text-gray-400" id="loading-spinner">
-                    <svg class="animate-spin h-5 w-5 mr-3 inline text-yellow-500" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Chargement de 200 projets Modrinth... (Cela peut prendre quelques secondes)
-                </div>
-            </div>
+        <!-- Bar de Recherche et Filtres -->
+        <div class="flex flex-col md:flex-row gap-4 mb-8">
+            <input type="text" id="searchInput" placeholder="Rechercher par nom..." 
+                   class="flex-grow p-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-yellow-500 focus:ring focus:ring-yellow-500/50 text-white placeholder-gray-500">
             
-            <p id="no-results" class="text-center text-gray-500 mt-8 hidden">Aucun résultat trouvé pour votre recherche.</p>
-
+            <select id="platformFilter" class="p-3 rounded-lg bg-gray-800 border border-gray-700 text-white">
+                <option value="">Plateforme (Tous)</option>
+                <option value="fabric">Fabric</option>
+                <option value="forge">Forge</option>
+                <option value="bukkit">Bukkit / Spigot</option>
+            </select>
+            
+            <select id="typeFilter" class="p-3 rounded-lg bg-gray-800 border border-gray-700 text-white">
+                <option value="">Type (Tous)</option>
+                <option value="mod">Mod</option>
+                <option value="plugin">Plugin</option>
+                <option value="modpack">Modpack</option>
+            </select>
         </div>
-    </main>
-    
-    <!-- Script de Gestion des Données et Affichage -->
-    <script>
-        // Initialiser les données des plugins globalement
-        window.pluginsData = [];
-        const MODRINTH_API = 'https://api.modrinth.com/v2';
-        // Note : Nous n'utilisons plus de liste de slugs statique mais la fonction de recherche.
 
-        /**
-         * Tente de récupérer des données depuis une URL avec une stratégie de backoff exponentiel.
-         * @param {string} url - L'URL à récupérer.
-         * @param {number} [attempts=3] - Le nombre maximum de tentatives.
-         * @returns {Promise<Object>} La réponse JSON.
-         */
-        const fetchWithRetry = async (url, attempts = 3) => {
-            for (let i = 0; i < attempts; i++) {
+        <!-- Zone d'Affichage des Mods -->
+        <div id="modsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Les cartes de mods seront insérées ici par JavaScript -->
+        </div>
+
+        <!-- Indicateur de Chargement / Bouton de Chargement (pour l'infini scroll) -->
+        <div class="text-center mt-12" id="loadingArea">
+            <button id="loadMoreButton" class="px-6 py-3 bg-yellow-500 text-gray-900 font-bold rounded-xl shadow-lg hover:bg-yellow-400 transition duration-300 hidden">
+                Charger Plus de Mods
+            </button>
+            <p id="loadingIndicator" class="text-gray-400">
+                Chargement des premiers mods...
+            </p>
+        </div>
+        
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-700/50 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center text-gray-500">
+            <p>&copy; 2025 CraftKit. Propulsé par la communauté Minecraft. Données de l'annuaire fournies par Modrinth.</p>
+        </div>
+    </footer>
+
+    <script>
+        // French comments for clarity:
+        const MODRINTH_API = "https://api.modrinth.com/v2/search";
+        const MODS_PER_PAGE = 20; // Nombre de mods à charger par requête
+        let currentPage = 0;
+        let isFetching = false;
+        let lastQuery = '';
+
+        const modsContainer = document.getElementById('modsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const platformFilter = document.getElementById('platformFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        const loadMoreButton = document.getElementById('loadMoreButton');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // Fonction d'aide pour la temporisation (Exponential Backoff pour l'API)
+        async function fetchWithBackoff(url, retries = 3, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
                 try {
                     const response = await fetch(url);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return await response.json();
                 } catch (error) {
-                    if (i < attempts - 1) {
-                        const delay = Math.pow(2, i) * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                    } else {
-                        throw error;
-                    }
+                    if (i === retries - 1) throw error;
+                    console.error(`Tentative ${i + 1} échouée. Nouvelle tentative dans ${delay}ms...`, error);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2; // Double le délai pour le prochain essai
                 }
             }
-        };
+        }
 
         /**
-         * Fonction pour générer la carte HTML d'un plugin/mod.
-         * @param {Object} data - Les données du projet.
-         * @returns {string} Le fragment HTML de la carte.
+         * Construit une carte HTML pour un mod/plugin.
+         * @param {Object} mod - Données du projet Modrinth.
          */
-        function createToolCard(data) {
-            let platformClass = 'bg-gray-600/20 text-gray-400';
-            if (data.platform.includes('Spigot') || data.platform.includes('Paper')) {
-                platformClass = 'bg-orange-600/20 text-orange-400';
-            } else if (data.platform.includes('Fabric')) {
-                platformClass = 'bg-cyan-600/20 text-cyan-400';
-            } else if (data.platform.includes('Forge')) {
-                platformClass = 'bg-red-600/20 text-red-400';
-            }
-            
-            // Utilisation d'une icône générique pour la variété des 200 projets
-            const genericIconPath = "M11 4a2 2 0 100 4m-3 12h2m-6-10h4m-2 4h4m-2 4h2M5 16h2m10 0h2m-6 4a2 2 0 100 4m-3-12h2m-6 0h4m-2 4h4m-2 4h2";
-            const genericIconColor = data.type === 'Mod' ? 'text-green-400' : 'text-blue-400'; // Différencier Mod/Plugin par couleur
+        function createModCard(mod) {
+            const card = document.createElement('a');
+            card.href = `https://modrinth.com/project/${mod.slug}`;
+            card.target = "_blank";
+            card.className = "block bg-gray-800 rounded-xl shadow-2xl p-4 transition duration-300 hover:bg-gray-700/70 transform hover:scale-[1.02]";
 
-            return `
-                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-lg flex items-start space-x-4">
-                    <div class="flex-shrink-0 p-3 rounded-full ${genericIconColor} bg-gray-700">
-                        <!-- Icône simple pour tous les projets -->
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${genericIconPath}"></path>
-                        </svg>
-                    </div>
-                    
-                    <div class="flex-grow">
-                        <div class="flex items-center space-x-3 mb-1">
-                            <h3 class="text-xl font-bold text-white">${data.name}</h3>
-                            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${platformClass}">${data.platform}</span>
-                            <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-600/20 text-indigo-400">${data.type}</span>
-                        </div>
-                        <p class="text-gray-400 text-sm mb-3">${data.description}</p>
-                        
-                        <div class="flex items-center space-x-4">
-                            ${data.downloadUrl ? 
-                                `<a href="${data.downloadUrl}" target="_blank"
-                                   class="inline-flex items-center px-4 py-2 bg-yellow-500 text-gray-900 font-semibold rounded-lg hover:bg-yellow-400 transition duration-300 text-sm">
-                                    Télécharger v${data.version}
-                                </a>` 
-                                : 
-                                `<span class="text-sm text-red-400">
-                                    Lien de téléchargement non trouvé
-                                </span>`
-                            }
-                            <span class="text-sm text-gray-500">
-                                Lien Modrinth
-                            </span>
-                        </div>
+            // Utilisation d'un placeholder si l'icône est manquante
+            const iconUrl = mod.icon_url || 'https://placehold.co/64x64/2d3748/fff?text=MK';
+            
+            // Formatage de la date de mise à jour
+            const dateUpdate = new Date(mod.date_modified).toLocaleDateString('fr-FR', {
+                year: 'numeric', month: 'short', day: 'numeric'
+            });
+
+            // FIX: Utiliser (mod.game_versions || []) pour s'assurer que .slice est appelé sur un tableau
+            // Affichage des plateformes (tags) - limité aux 3 premières versions de jeu pour la concision
+            const platformTags = (mod.game_versions || []).slice(0, 3).map(v => 
+                `<span class="inline-block bg-gray-700 text-xs font-semibold px-2 py-1 rounded-full">${v}</span>`
+            ).join('');
+
+            card.innerHTML = `
+                <div class="flex items-start space-x-4 mb-4">
+                    <img src="${iconUrl}" onerror="this.onerror=null; this.src='https://placehold.co/64x64/2d3748/fff?text=MK';" class="w-16 h-16 rounded-lg object-cover" alt="Icône de ${mod.title}">
+                    <div class="flex-grow text-left">
+                        <h3 class="text-lg font-bold text-yellow-400 group-hover:text-yellow-300">${mod.title}</h3>
+                        <p class="text-sm text-gray-400">${mod.project_type.charAt(0).toUpperCase() + mod.project_type.slice(1)}</p>
                     </div>
                 </div>
+                <p class="text-gray-300 text-sm line-clamp-2 mb-3 h-10">${mod.description}</p>
+                <div class="text-xs text-gray-500 mb-3 flex justify-between items-center">
+                    <span>${mod.downloads} Téléchargements</span>
+                    <span>Mis à jour: ${dateUpdate}</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    ${platformTags}
+                </div>
             `;
+            return card;
         }
 
         /**
-         * Fonction de filtrage et d'affichage des résultats chargés.
+         * Construit l'URL de recherche pour Modrinth.
          */
-        function filterResults() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const container = document.getElementById('results-container');
-            const noResults = document.getElementById('no-results');
-            
-            const currentPluginsData = window.pluginsData || [];
+        function buildQueryUrl(offset, limit, query, platform, type) {
+            let url = new URL(MODRINTH_API);
+            let facets = [];
 
-            const filteredData = currentPluginsData.filter(item => 
-                item.name.toLowerCase().includes(query) ||
-                item.description.toLowerCase().includes(query) ||
-                item.platform.toLowerCase().includes(query) ||
-                item.type.toLowerCase().includes(query)
-            );
-
-            container.innerHTML = filteredData.map(createToolCard).join('');
-            
-            if (filteredData.length === 0 && currentPluginsData.length > 0) {
-                noResults.classList.remove('hidden');
+            // Facette pour le type (mod, plugin, etc.)
+            if (type) {
+                facets.push(`["project_type:${type}"]`);
             } else {
-                noResults.classList.add('hidden');
+                // Par défaut, nous voulons mod, plugin et modpack
+                facets.push(`["project_type:mod", "project_type:plugin", "project_type:modpack"]`);
             }
+            
+            // Facette pour la plateforme (si spécifiée)
+            if (platform) {
+                // Note: Modrinth utilise 'loader' pour Fabric/Forge et 'category' pour Spigot/Bukkit
+                facets.push(`["categories:${platform}"]`); 
+            }
+
+            // Paramètres de l'API
+            url.searchParams.set('offset', offset);
+            url.searchParams.set('limit', limit);
+            url.searchParams.set('index', 'downloads'); // Tri par popularité (downloads)
+            url.searchParams.set('query', query || '');
+            url.searchParams.set('facets', `[${facets.join(',')}]`);
+            
+            return url.toString();
         }
 
         /**
-         * Charge les données des plugins/mods depuis l'API Modrinth.
+         * Charge les mods depuis l'API Modrinth et les affiche.
+         * @param {boolean} clear - Vrai pour effacer les résultats existants.
          */
-        async function loadPluginsFromAPI() {
-            const container = document.getElementById('results-container');
+        async function loadMods(clear = false) {
+            if (isFetching) return;
+            isFetching = true;
+            loadingIndicator.textContent = clear ? "Chargement des premiers mods..." : "Chargement en cours...";
+            loadMoreButton.classList.add('hidden');
             
-            // 1. Appel de l'API de recherche pour obtenir 200 projets populaires (triés par téléchargements)
-            const searchUrl = `${MODRINTH_API}/search?limit=200&project_type=mod&project_type=plugin&sort=downloads`;
-            
-            let searchResults;
-            try {
-                searchResults = await fetchWithRetry(searchUrl);
-            } catch (error) {
-                container.innerHTML = `<p class="text-center text-red-400 py-8">Erreur lors de la recherche des projets Modrinth. Veuillez réessayer plus tard.</p>`;
-                return;
+            if (clear) {
+                modsContainer.innerHTML = '';
+                currentPage = 0;
             }
 
-            const projectHits = searchResults.hits || [];
-            const fetchedPlugins = [];
+            const query = searchInput.value.trim();
+            const platform = platformFilter.value;
+            const type = typeFilter.value;
 
-            // 2. Itérer sur les résultats pour récupérer les détails de la dernière version
-            for (const project of projectHits) {
-                // Mettre à jour le spinner pour montrer la progression (Approximation: 10 appels/seconde)
-                container.innerHTML = `<div class="text-center py-8 text-gray-400" id="loading-spinner">
-                    <svg class="animate-spin h-5 w-5 mr-3 inline text-yellow-500" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Chargement des versions... (${fetchedPlugins.length} / ${projectHits.length} projets terminés)
-                </div>`;
+            // Construit l'URL avec les filtres actuels
+            const url = buildQueryUrl(currentPage * MODS_PER_PAGE, MODS_PER_PAGE, query, platform, type);
+
+            try {
+                const data = await fetchWithBackoff(url);
                 
-                let downloadUrl = null;
-                let versionNumber = 'N/A';
-                let platformLoaders = [];
-
-                try {
-                    // Récupérer la dernière version
-                    const versions = await fetchWithRetry(`${MODRINTH_API}/project/${project.project_id}/version?limit=1`);
+                if (data.hits && data.hits.length > 0) {
+                    data.hits.forEach(mod => {
+                        modsContainer.appendChild(createModCard(mod));
+                    });
+                    currentPage++;
                     
-                    if (versions.length > 0 && versions[0].files.length > 0 && versions[0].files[0].url) {
-                        const latestVersion = versions[0];
-                        downloadUrl = latestVersion.files[0].url;
-                        versionNumber = latestVersion.version_number;
-                        platformLoaders = latestVersion.loaders;
+                    // Si le nombre de résultats reçus est inférieur à la limite, c'est la fin.
+                    if (data.hits.length < MODS_PER_PAGE) {
+                         loadingIndicator.textContent = "Fin des résultats.";
+                         // Nous gardons le bouton caché car l'Infinite Scroll est actif
+                    } else {
+                         // Prépare le bouton pour le prochain chargement
+                         loadingIndicator.textContent = "";
+                         // Le bouton reste caché, l'IntersectionObserver va s'en charger
                     }
-                } catch (error) {
-                    // console.error(`Impossible de récupérer la version pour ${project.slug}:`, error);
-                    // Continuer même si la version n'est pas trouvée
+
+                } else if (clear) {
+                    loadingIndicator.textContent = "Aucun résultat trouvé pour cette recherche/ces filtres.";
+                } else {
+                    loadingIndicator.textContent = "Fin des résultats.";
                 }
 
-                // Détermination du type et de la plateforme
-                const projectType = project.project_type === 'mod' ? 'Mod' : 'Plugin';
-                const platform = platformLoaders.map(l => {
-                    if (l.includes('fabric')) return 'Fabric';
-                    if (l.includes('forge')) return 'Forge';
-                    if (l.includes('bukkit') || l.includes('spigot') || l.includes('paper')) return 'Spigot/Paper';
-                    return l;
-                }).filter(Boolean).join('/');
-                
-                // Troncature de la description
-                const maxDescLength = 150;
-                const description = project.description.length > maxDescLength 
-                                    ? project.description.substring(0, maxDescLength).trim() + '...' 
-                                    : project.description;
-
-                fetchedPlugins.push({
-                    name: project.title,
-                    type: projectType,
-                    platform: platform || 'Inconnu',
-                    description: description,
-                    version: versionNumber,
-                    downloadUrl: downloadUrl,
-                    // Note: Les icônes et couleurs sont désormais génériques dans createToolCard
-                });
-            }
-            
-            window.pluginsData = fetchedPlugins; 
-            
-            // Masquer le spinner et afficher les résultats
-            const loadingSpinner = document.getElementById('loading-spinner');
-            if (loadingSpinner) loadingSpinner.remove();
-            
-            filterResults(); 
-
-            if (fetchedPlugins.length === 0) {
-                 container.innerHTML = `<p class="text-center text-red-400 py-8">Aucun projet n'a pu être chargé depuis Modrinth.</p>`;
-            } else {
-                 container.insertAdjacentHTML('afterbegin', `<p class="text-center text-gray-500 mb-4">${fetchedPlugins.length} projets populaires chargés.</p>`);
+            } catch (error) {
+                console.error("Erreur lors de la récupération des mods:", error);
+                loadingIndicator.textContent = "Erreur de chargement. Veuillez réessayer.";
+            } finally {
+                isFetching = false;
             }
         }
+        
+        /**
+         * Déclenche une nouvelle recherche complète après une petite pause.
+         */
+        let searchTimeout;
+        function handleSearchOrFilterChange() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                // Réinitialise et recharge pour la nouvelle requête
+                loadMods(true);
+            }, 500); // 500ms de délai après la dernière frappe/changement de filtre
+        }
 
-        // Lancer le chargement des données au démarrage
-        document.addEventListener('DOMContentLoaded', loadPluginsFromAPI);
+        // Événements d'écoute pour la recherche et les filtres
+        searchInput.addEventListener('input', handleSearchOrFilterChange);
+        platformFilter.addEventListener('change', handleSearchOrFilterChange);
+        typeFilter.addEventListener('change', handleSearchOrFilterChange);
+        loadMoreButton.addEventListener('click', () => loadMods(false)); // Bouton de secours
+
+        /**
+         * Configure l'observateur d'intersection pour le chargement infini.
+         * C'est la fonction qui implémente le chargement au fur et à mesure que l'utilisateur scroll.
+         */
+        function setupInfiniteScroll() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    // Si l'utilisateur voit la zone de chargement ET qu'aucune requête n'est déjà en cours
+                    // et que nous n'avons pas atteint la fin des résultats
+                    if (entry.isIntersecting && !isFetching && loadingIndicator.textContent !== "Fin des résultats." && loadingIndicator.textContent !== "Erreur de chargement. Veuillez réessayer.") {
+                        loadMods(false);
+                    }
+                });
+            }, {
+                rootMargin: '0px 0px 200px 0px', // Déclencher le chargement quand il reste 200px avant d'atteindre l'élément observé
+                threshold: 0.1
+            });
+
+            // Nous observons le conteneur de chargement
+            observer.observe(loadingArea);
+        }
+
+        // Initialisation: Chargement initial et mise en place de l'observateur
+        window.onload = () => {
+            // Un premier chargement est fait à l'initialisation.
+            // Le second chargement sera déclenché par l'Infinite Scroll dès que la zone est visible.
+            loadMods(true); 
+            setupInfiniteScroll(); 
+        };
+
     </script>
-    
-    <!-- Footer -->
-    <footer class="bg-gray-900 border-t border-gray-700/50 py-8 mt-12">
-        <div class="container mx-auto px-4 text-center text-gray-500">
-            <p>&copy; 2025 CraftKit. Données fournies par Modrinth.</p>
-        </div>
-    </footer>
 
 </body>
 </html>
