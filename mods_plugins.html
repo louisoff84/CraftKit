@@ -4,21 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Annuaire Mods & Plugins - CraftKit</title>
-    <!-- Chargement du CDN de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         html { font-family: 'Inter', sans-serif; }
-        .tab-active {
-            @apply border-yellow-500 text-yellow-500 font-bold bg-gray-700/50;
-        }
-        .tab-inactive {
-            @apply border-transparent text-gray-400 hover:text-white hover:border-gray-600;
-        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 antialiased min-h-screen">
-
+                                
     <!-- Navbar -->
     <header class="bg-gray-800 shadow-lg sticky top-0 z-10">
         <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -27,234 +20,250 @@
                 <span class="text-2xl font-extrabold text-white">Craft<span class="text-yellow-400">Kit</span></span>
             </a>
             <div class="space-x-4">
-                <a href="admin_panel.html" class="text-gray-400 hover:text-white transition duration-300 hidden sm:inline">Admin</a>
-                <a href="login.html" class="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg font-semibold hover:bg-yellow-400 transition duration-300">Connexion</a>
+                <a href="login.html" class="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg font-semibold hover:bg-yellow-400 transition duration-300 text-sm">Connexion</a>
             </div>
         </nav>
     </header>
 
     <!-- Contenu Principal -->
     <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-4xl font-extrabold mb-4 text-white">Annuaire des Ressources</h1>
-            <p class="text-gray-400 mb-8">Trouvez votre mod ou plugin. Les liens de téléchargement renvoient directement à la page officielle Modrinth.</p>
-            
-            <!-- Message d'information sur les données (Mise à jour de l'explication CORS) -->
-            <div id="api-notice" class="bg-red-900/50 border border-red-600 p-3 rounded-lg text-sm text-red-300 mb-6 flex items-center space-x-3">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                <span>Attention: Le chargement direct des données via l'API Modrinth est bloqué par la politique CORS. Les données sont **simulées** pour l'affichage, mais les boutons "Télécharger" vous mènent à la page Modrinth réelle pour un téléchargement sécurisé.</span>
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-10">
+                <svg class="w-12 h-12 text-yellow-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6h6m3 6v2m0-6h6m-3-2a2 2 0 100-4m0 4a2 2 0 110-4m0 0V4"></path></svg>
+                <h1 class="text-4xl font-extrabold mb-2 text-white">Annuaire Modrinth Connecté</h1>
+                <p class="text-gray-400">Liste des 200 projets les plus populaires, alimentée par Modrinth.</p>
             </div>
 
-            <!-- Système d'Onglets -->
-            <div class="mb-8 border-b border-gray-700">
-                <div class="-mb-px flex space-x-4" role="tablist">
-                    <button id="tab-mods" onclick="setActiveTab('mod')" role="tab"
-                            class="py-3 px-6 border-b-2 text-lg transition duration-200 tab-active">
-                        Mods
-                    </button>
-                    <button id="tab-plugins" onclick="setActiveTab('plugin')" role="tab"
-                            class="py-3 px-6 border-b-2 text-lg transition duration-200 tab-inactive">
-                        Plugins
-                    </button>
+            <!-- Barre de Recherche et Filtres (Simulation) -->
+            <div class="bg-gray-800 p-6 rounded-xl shadow-xl mb-8 border border-gray-700">
+                <input type="text" id="search-input" placeholder="Rechercher un mod ou un plugin parmi les 200 projets chargés..."
+                       class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-yellow-500 focus:border-yellow-500 transition duration-150"
+                       onkeyup="filterResults()">
+            </div>
+
+            <!-- Liste des Plugins/Mods -->
+            <div id="results-container" class="space-y-4">
+                <div class="text-center py-8 text-gray-400" id="loading-spinner">
+                    <svg class="animate-spin h-5 w-5 mr-3 inline text-yellow-500" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    Chargement de 200 projets Modrinth... (Cela peut prendre quelques secondes)
                 </div>
             </div>
-
-            <!-- Barre de Recherche et Filtres -->
-            <div class="mb-8 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                <input type="text" id="search-input" onkeyup="loadResources(activeTab)" placeholder="Rechercher un Mod..."
-                       class="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-yellow-500 focus:border-yellow-500 transition duration-150">
-                
-                <select id="version-filter" onchange="loadResources(activeTab)"
-                        class="px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-yellow-500 focus:border-yellow-500 transition duration-150 w-full md:w-auto">
-                    <option value="">Toutes les Versions</option>
-                    <option value="1.20">1.20+</option>
-                    <option value="1.19">1.19.x</option>
-                    <option value="1.16">1.16.x</option>
-                </select>
-            </div>
             
-            <!-- Indicateur de Chargement (Visible lors de la simulation de chargement) -->
-            <div id="loading-indicator" class="text-center p-12 hidden">
-                <svg class="animate-spin h-8 w-8 text-yellow-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p class="mt-3 text-white">Simulation de la recherche Modrinth...</p>
-            </div>
-
-
-            <!-- Conteneur des Cartes de Ressources -->
-            <div id="resources-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Les cartes de ressources seront insérées ici par JavaScript -->
-            </div>
-            
-            <!-- Message de résultat vide -->
-            <div id="no-results" class="hidden text-center p-12 bg-gray-800 rounded-xl mt-8 border border-gray-700">
-                <svg class="w-12 h-12 mx-auto text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <p class="text-xl font-semibold mt-4 text-white">Aucun résultat trouvé.</p>
-                <p class="text-gray-400">Essayez un autre terme de recherche ou changez les filtres.</p>
-            </div>
+            <p id="no-results" class="text-center text-gray-500 mt-8 hidden">Aucun résultat trouvé pour votre recherche.</p>
 
         </div>
     </main>
-
-    <!-- JavaScript pour la gestion des données, des onglets et du rendu -->
+    
+    <!-- Script de Gestion des Données et Affichage -->
     <script>
-        // Active project type (mod or plugin)
-        let activeTab = 'mod';
+        // Initialiser les données des plugins globalement
+        window.pluginsData = [];
+        const MODRINTH_API = 'https://api.modrinth.com/v2';
+        // Note : Nous n'utilisons plus de liste de slugs statique mais la fonction de recherche.
 
-        // --- DONNÉES MODRINTH SIMULÉES ---
-        // Mimics essential fields from the Modrinth API response
-        const simulatedData = {
-            mod: [
-                { slug: 'fabric-api', title: "Fabric API", description: "L'API principale pour tous les mods Fabric. Nécessaire pour la plupart.", project_type: "mod", downloads: 55000000, version: "1.20.1", icon: "💎" },
-                { slug: 'sodium', title: "Sodium", description: "Optimisation de rendu massive pour améliorer les performances FPS.", project_type: "mod", downloads: 30000000, version: "1.20.1", icon: "🚀" },
-                { slug: 'iris', title: "Iris Shaders", description: "Ajoute la prise en charge des shaders packs Fabric/Forge.", project_type: "mod", downloads: 15000000, version: "1.20.1", icon: "✨" },
-                { slug: 'advent-of-ascension', title: "Advent of Ascension", description: "Un énorme mod d'aventure ajoutant des dimensions et des boss.", project_type: "mod", downloads: 400000, version: "1.16.5", icon: "⚔️" },
-                { slug: 'chiseled-bits', title: "Chiseled Bits", description: "Modélisez des blocs de manière détaillée au niveau des pixels.", project_type: "mod", downloads: 7000000, version: "1.19.4", icon: "⛏️" },
-            ],
-            plugin: [
-                { slug: 'essentialsx', title: "EssentialsX", description: "Le plugin de base indispensable pour les commandes serveur (warps, homes).", project_type: "plugin", downloads: 90000000, version: "1.20.1", icon: "🔧" },
-                { slug: 'worldguard', title: "WorldGuard", description: "Protégez votre monde contre le grief et gérez les régions.", project_type: "plugin", downloads: 65000000, version: "1.20.1", icon: "🛡️" },
-                { slug: 'luckperms', title: "LuckPerms", description: "Système de permissions ultra-rapide et flexible.", project_type: "plugin", downloads: 40000000, version: "1.20.1", icon: "🔑" },
-                { slug: 'dynmap', title: "Dynmap", description: "Génère une carte web en temps réel de votre monde Minecraft.", project_type: "plugin", downloads: 12000000, version: "1.19.4", icon: "🗺️" },
-                { slug: 'skript', title: "Skript", description: "Permet d'écrire des scripts sans coder de plugin Java.", project_type: "plugin", downloads: 20000000, version: "1.16.5", icon: "📜" },
-            ]
+        /**
+         * Tente de récupérer des données depuis une URL avec une stratégie de backoff exponentiel.
+         * @param {string} url - L'URL à récupérer.
+         * @param {number} [attempts=3] - Le nombre maximum de tentatives.
+         * @returns {Promise<Object>} La réponse JSON.
+         */
+        const fetchWithRetry = async (url, attempts = 3) => {
+            for (let i = 0; i < attempts; i++) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    if (i < attempts - 1) {
+                        const delay = Math.pow(2, i) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw error;
+                    }
+                }
+            }
         };
 
-        // Fonction pour générer l'URL de la page Modrinth à partir du slug
-        function getModrinthUrl(slug) {
-            return `https://modrinth.com/${activeTab}/${slug}`;
-        }
-
-        // Fonction pour changer l'onglet actif et recharger les ressources
-        function setActiveTab(tabName) {
-            // tabName est soit 'mod' soit 'plugin'
-            activeTab = tabName;
-            
-            // Mise à jour du style des boutons
-            document.getElementById('tab-mods').className = 'py-3 px-6 border-b-2 text-lg transition duration-200 ' + (tabName === 'mod' ? 'tab-active' : 'tab-inactive');
-            document.getElementById('tab-plugins').className = 'py-3 px-6 border-b-2 text-lg transition duration-200 ' + (tabName === 'plugin' ? 'tab-active' : 'tab-inactive');
-            
-            // Mise à jour du placeholder de recherche
-            const placeholder = tabName === 'mod' ? 'Rechercher un Mod...' : 'Rechercher un Plugin...';
-            document.getElementById('search-input').placeholder = placeholder;
-            
-            loadResources(activeTab);
-        }
-
-        // Simule la récupération de données et applique les filtres
-        async function fetchSimulatedData(query, projectType, version) {
-            const loading = document.getElementById('loading-indicator');
-            loading.classList.remove('hidden');
-
-            // Simuler un délai réseau
-            await new Promise(resolve => setTimeout(resolve, 800)); 
-
-            let results = simulatedData[projectType];
-
-            // 1. Filtrage par recherche (titre ou description)
-            if (query) {
-                const searchLower = query.toLowerCase();
-                results = results.filter(item => 
-                    item.title.toLowerCase().includes(searchLower) || 
-                    item.description.toLowerCase().includes(searchLower)
-                );
-            }
-
-            // 2. Filtrage par version (vérification simple des 4 premiers caractères)
-            if (version) {
-                results = results.filter(item => item.version.startsWith(version));
+        /**
+         * Fonction pour générer la carte HTML d'un plugin/mod.
+         * @param {Object} data - Les données du projet.
+         * @returns {string} Le fragment HTML de la carte.
+         */
+        function createToolCard(data) {
+            let platformClass = 'bg-gray-600/20 text-gray-400';
+            if (data.platform.includes('Spigot') || data.platform.includes('Paper')) {
+                platformClass = 'bg-orange-600/20 text-orange-400';
+            } else if (data.platform.includes('Fabric')) {
+                platformClass = 'bg-cyan-600/20 text-cyan-400';
+            } else if (data.platform.includes('Forge')) {
+                platformClass = 'bg-red-600/20 text-red-400';
             }
             
-            loading.classList.add('hidden');
-            return results;
-        }
+            // Utilisation d'une icône générique pour la variété des 200 projets
+            const genericIconPath = "M11 4a2 2 0 100 4m-3 12h2m-6-10h4m-2 4h4m-2 4h2M5 16h2m10 0h2m-6 4a2 2 0 100 4m-3-12h2m-6 0h4m-2 4h4m-2 4h2";
+            const genericIconColor = data.type === 'Mod' ? 'text-green-400' : 'text-blue-400'; // Différencier Mod/Plugin par couleur
 
-        // Fonction pour créer le HTML d'une carte de ressource
-        function createResourceCard(resource) {
-            const card = document.createElement('div');
-            card.className = 'bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-700 hover:border-yellow-500 transition duration-300 transform hover:-translate-y-1 flex flex-col justify-between';
-            
-            // Formatage des téléchargements (ex: 55M, 400K)
-            const downloadsFormatted = new Intl.NumberFormat('fr-FR', { notation: 'compact', maximumFractionDigits: 1 }).format(resource.downloads);
-
-            card.innerHTML = `
-                <div>
-                    <div class="flex items-start space-x-4 mb-4">
-                        <span class="text-4xl leading-none flex-shrink-0">${resource.icon}</span>
-                        <div>
-                            <h3 class="text-xl font-bold text-white">${resource.title}</h3>
-                            <p class="text-sm text-yellow-400">${resource.project_type === 'mod' ? 'Mod' : 'Plugin'}</p>
+            return `
+                <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-lg flex items-start space-x-4">
+                    <div class="flex-shrink-0 p-3 rounded-full ${genericIconColor} bg-gray-700">
+                        <!-- Icône simple pour tous les projets -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${genericIconPath}"></path>
+                        </svg>
+                    </div>
+                    
+                    <div class="flex-grow">
+                        <div class="flex items-center space-x-3 mb-1">
+                            <h3 class="text-xl font-bold text-white">${data.name}</h3>
+                            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${platformClass}">${data.platform}</span>
+                            <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-600/20 text-indigo-400">${data.type}</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-3">${data.description}</p>
+                        
+                        <div class="flex items-center space-x-4">
+                            ${data.downloadUrl ? 
+                                `<a href="${data.downloadUrl}" target="_blank"
+                                   class="inline-flex items-center px-4 py-2 bg-yellow-500 text-gray-900 font-semibold rounded-lg hover:bg-yellow-400 transition duration-300 text-sm">
+                                    Télécharger v${data.version}
+                                </a>` 
+                                : 
+                                `<span class="text-sm text-red-400">
+                                    Lien de téléchargement non trouvé
+                                </span>`
+                            }
+                            <span class="text-sm text-gray-500">
+                                Lien Modrinth
+                            </span>
                         </div>
                     </div>
-                    <p class="text-gray-300 mb-4 text-sm">${resource.description}</p>
-                </div>
-                
-                <div class="pt-4 border-t border-gray-700 mt-4">
-                    <div class="grid grid-cols-2 gap-2 text-xs font-semibold mb-3">
-                        <div class="flex items-center space-x-2 text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            <span>${downloadsFormatted} Tél.</span>
-                        </div>
-                        <div class="flex items-center space-x-2 text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414l-2.438-2.438m0 0L17 5m-2.586 2.586l2.438 2.438"></path></svg>
-                            <span>v${resource.version}</span>
-                        </div>
-                    </div>
-                    <a href="${getModrinthUrl(resource.slug)}" target="_blank" rel="noopener noreferrer"
-                       class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-gray-900 bg-yellow-500 hover:bg-yellow-400 transition duration-150">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Télécharger (Modrinth)
-                    </a>
                 </div>
             `;
-            return card;
         }
 
-        // Fonction principale pour charger et afficher les ressources
-        async function loadResources(projectType) {
-            const container = document.getElementById('resources-container');
-            const searchInput = document.getElementById('search-input').value;
-            const versionFilter = document.getElementById('version-filter').value;
+        /**
+         * Fonction de filtrage et d'affichage des résultats chargés.
+         */
+        function filterResults() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const container = document.getElementById('results-container');
             const noResults = document.getElementById('no-results');
             
-            container.innerHTML = '';
-            noResults.classList.add('hidden');
+            const currentPluginsData = window.pluginsData || [];
 
-            try {
-                // Appel à la fonction qui simule la requête API
-                const resources = await fetchSimulatedData(searchInput, projectType, versionFilter);
+            const filteredData = currentPluginsData.filter(item => 
+                item.name.toLowerCase().includes(query) ||
+                item.description.toLowerCase().includes(query) ||
+                item.platform.toLowerCase().includes(query) ||
+                item.type.toLowerCase().includes(query)
+            );
 
-                if (resources.length === 0) {
-                    noResults.classList.remove('hidden');
-                } else {
-                    resources.forEach(resource => {
-                        container.appendChild(createResourceCard(resource));
-                    });
-                }
-            } catch (error) {
-                console.error("Erreur lors du chargement des ressources (simulé):", error);
-                document.getElementById('loading-indicator').classList.add('hidden');
+            container.innerHTML = filteredData.map(createToolCard).join('');
+            
+            if (filteredData.length === 0 && currentPluginsData.length > 0) {
                 noResults.classList.remove('hidden');
-                document.getElementById('no-results').innerHTML = `<p class="text-xl font-semibold mt-4 text-red-400">Erreur de chargement des données.</p><p class="text-gray-400">Veuillez réessayer plus tard.</p>`;
+            } else {
+                noResults.classList.add('hidden');
             }
         }
-        
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', () => {
-            // Commencez par l'onglet 'mod' (Mods) actif
-            setActiveTab('mod'); 
-        });
+
+        /**
+         * Charge les données des plugins/mods depuis l'API Modrinth.
+         */
+        async function loadPluginsFromAPI() {
+            const container = document.getElementById('results-container');
+            
+            // 1. Appel de l'API de recherche pour obtenir 200 projets populaires (triés par téléchargements)
+            const searchUrl = `${MODRINTH_API}/search?limit=200&project_type=mod&project_type=plugin&sort=downloads`;
+            
+            let searchResults;
+            try {
+                searchResults = await fetchWithRetry(searchUrl);
+            } catch (error) {
+                container.innerHTML = `<p class="text-center text-red-400 py-8">Erreur lors de la recherche des projets Modrinth. Veuillez réessayer plus tard.</p>`;
+                return;
+            }
+
+            const projectHits = searchResults.hits || [];
+            const fetchedPlugins = [];
+
+            // 2. Itérer sur les résultats pour récupérer les détails de la dernière version
+            for (const project of projectHits) {
+                // Mettre à jour le spinner pour montrer la progression (Approximation: 10 appels/seconde)
+                container.innerHTML = `<div class="text-center py-8 text-gray-400" id="loading-spinner">
+                    <svg class="animate-spin h-5 w-5 mr-3 inline text-yellow-500" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    Chargement des versions... (${fetchedPlugins.length} / ${projectHits.length} projets terminés)
+                </div>`;
+                
+                let downloadUrl = null;
+                let versionNumber = 'N/A';
+                let platformLoaders = [];
+
+                try {
+                    // Récupérer la dernière version
+                    const versions = await fetchWithRetry(`${MODRINTH_API}/project/${project.project_id}/version?limit=1`);
+                    
+                    if (versions.length > 0 && versions[0].files.length > 0 && versions[0].files[0].url) {
+                        const latestVersion = versions[0];
+                        downloadUrl = latestVersion.files[0].url;
+                        versionNumber = latestVersion.version_number;
+                        platformLoaders = latestVersion.loaders;
+                    }
+                } catch (error) {
+                    // console.error(`Impossible de récupérer la version pour ${project.slug}:`, error);
+                    // Continuer même si la version n'est pas trouvée
+                }
+
+                // Détermination du type et de la plateforme
+                const projectType = project.project_type === 'mod' ? 'Mod' : 'Plugin';
+                const platform = platformLoaders.map(l => {
+                    if (l.includes('fabric')) return 'Fabric';
+                    if (l.includes('forge')) return 'Forge';
+                    if (l.includes('bukkit') || l.includes('spigot') || l.includes('paper')) return 'Spigot/Paper';
+                    return l;
+                }).filter(Boolean).join('/');
+                
+                // Troncature de la description
+                const maxDescLength = 150;
+                const description = project.description.length > maxDescLength 
+                                    ? project.description.substring(0, maxDescLength).trim() + '...' 
+                                    : project.description;
+
+                fetchedPlugins.push({
+                    name: project.title,
+                    type: projectType,
+                    platform: platform || 'Inconnu',
+                    description: description,
+                    version: versionNumber,
+                    downloadUrl: downloadUrl,
+                    // Note: Les icônes et couleurs sont désormais génériques dans createToolCard
+                });
+            }
+            
+            window.pluginsData = fetchedPlugins; 
+            
+            // Masquer le spinner et afficher les résultats
+            const loadingSpinner = document.getElementById('loading-spinner');
+            if (loadingSpinner) loadingSpinner.remove();
+            
+            filterResults(); 
+
+            if (fetchedPlugins.length === 0) {
+                 container.innerHTML = `<p class="text-center text-red-400 py-8">Aucun projet n'a pu être chargé depuis Modrinth.</p>`;
+            } else {
+                 container.insertAdjacentHTML('afterbegin', `<p class="text-center text-gray-500 mb-4">${fetchedPlugins.length} projets populaires chargés.</p>`);
+            }
+        }
+
+        // Lancer le chargement des données au démarrage
+        document.addEventListener('DOMContentLoaded', loadPluginsFromAPI);
     </script>
     
     <!-- Footer -->
     <footer class="bg-gray-900 border-t border-gray-700/50 py-8 mt-12">
         <div class="container mx-auto px-4 text-center text-gray-500">
-            <p>&copy; 2025 CraftKit. Tous droits réservés. | <a href="legal.html" class="hover:text-yellow-400">Mentions Légales</a></p>
+            <p>&copy; 2025 CraftKit. Données fournies par Modrinth.</p>
         </div>
     </footer>
 
 </body>
 </html>
-
