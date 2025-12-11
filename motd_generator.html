@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de MOTD - CraftKit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        html { font-family: 'Inter', sans-serif; }
+        .motd-preview {
+            /* Simule l'arrière-plan d'un serveur dans la liste Minecraft */
+            background: #1f2937; 
+            border: 2px solid #374151;
+            white-space: pre-wrap; /* Maintient les sauts de ligne */
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 antialiased min-h-screen">
+                                
+    <!-- Navbar -->
+    <header class="bg-gray-800 shadow-lg sticky top-0 z-10">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-2">
+                <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 100 4m-3 12h2m-6-10h4m-2 4h4m-2 4h2M5 16h2m10 0h2m-6 4a2 2 0 100 4m-3-12h2m-6 0h4m-2 4h4m-2 4h2"></path></svg>
+                <span class="text-2xl font-extrabold text-white">Craft<span class="text-yellow-400">Kit</span></span>
+            </a>
+            <div class="space-x-4">
+                <a href="admin_panel.html" class="text-gray-400 hover:text-white transition duration-300 hidden sm:inline">Admin</a>
+                <a href="login.html" class="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg font-semibold hover:bg-yellow-400 transition duration-300">Connexion</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contenu Principal -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="max-w-4xl mx-auto bg-gray-800 p-8 rounded-xl shadow-2xl border border-green-500/50">
+            <div class="text-center">
+                <svg class="w-12 h-12 text-green-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0h4.5a2.5 2.5 0 11-2.5 2.5V15"></path></svg>
+                <h1 class="text-4xl font-extrabold mb-2 text-white">Générateur de MOTD Stylisé</h1>
+                <p class="text-gray-400 mb-8">Créez votre Message du Jour (MOTD) en utilisant les codes de couleur Minecraft pour attirer les joueurs.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Colonne Gauche: Commandes de Style -->
+                <div class="lg:col-span-1">
+                    <h3 class="text-xl font-bold text-green-400 mb-4 border-b border-gray-700 pb-2">Codes de Formatage</h3>
+                    <div id="format-buttons" class="grid grid-cols-3 gap-2">
+                        <!-- Les boutons sont générés par JS pour l'insertion du code -->
+                    </div>
+                </div>
+
+                <!-- Colonne Droite: Éditeur et Aperçu -->
+                <div class="lg:col-span-2 space-y-6">
+                    <h3 class="text-xl font-bold text-green-400 mb-4 border-b border-gray-700 pb-2">Éditeur MOTD</h3>
+                    
+                    <textarea id="motd-input" rows="6" placeholder="Entrez votre message ici (max. 2 lignes, 59 caractères/ligne)..."
+                              class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-green-500 focus:border-green-500 transition duration-150"></textarea>
+
+                    <button onclick="copyMOTD()" 
+                            class="w-full py-3 bg-yellow-500 text-gray-900 font-bold rounded-lg shadow-lg hover:bg-yellow-400 transition duration-300 transform hover:scale-[1.01]">
+                        Copier le MOTD Brut
+                    </button>
+
+                    <h3 class="text-xl font-bold text-green-400 mt-8 mb-4 border-b border-gray-700 pb-2">Aperçu (Simulé)</h3>
+                    <div id="motd-preview" class="motd-preview p-4 rounded-lg shadow-inner text-white font-mono text-base">
+                        <!-- Le rendu HTML simulé du MOTD sera ici -->
+                        Cliquez sur les boutons ci-dessus pour insérer des codes !
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Script de Génération MOTD -->
+    <script>
+        const formatCodes = [
+            // Couleurs
+            { code: '§0', label: 'Noir', color: '#000000', type: 'color' },
+            { code: '§1', label: 'Bleu foncé', color: '#0000AA', type: 'color' },
+            { code: '§2', label: 'Vert foncé', color: '#00AA00', type: 'color' },
+            { code: '§3', label: 'Cyan foncé', color: '#00AAAA', type: 'color' },
+            { code: '§4', label: 'Rouge foncé', color: '#AA0000', type: 'color' },
+            { code: '§5', label: 'Violet', color: '#AA00AA', type: 'color' },
+            { code: '§6', label: 'Or', color: '#FFAA00', type: 'color' },
+            { code: '§7', label: 'Gris clair', color: '#AAAAAA', type: 'color' },
+            { code: '§8', label: 'Gris foncé', color: '#555555', type: 'color' },
+            { code: '§9', label: 'Bleu clair', color: '#5555FF', type: 'color' },
+            { code: '§a', label: 'Vert clair', color: '#55FF55', type: 'color' },
+            { code: '§b', label: 'Aqua', color: '#55FFFF', type: 'color' },
+            { code: '§c', label: 'Rouge clair', color: '#FF5555', type: 'color' },
+            { code: '§d', label: 'Rose', color: '#FF55FF', type: 'color' },
+            { code: '§e', label: 'Jaune', color: '#FFFF55', type: 'color' },
+            { code: '§f', label: 'Blanc', color: '#FFFFFF', type: 'color' },
+            // Styles
+            { code: '§l', label: 'Gras', style: 'font-weight: bold;', type: 'style' },
+            { code: '§o', label: 'Italique', style: 'font-style: italic;', type: 'style' },
+            { code: '§k', label: 'Magique', style: 'text-decoration: none; animation: magic 1s infinite;', type: 'style' }, // Simulation d'un effet
+            { code: '§m', label: 'Barré', style: 'text-decoration: line-through;', type: 'style' },
+            { code: '§n', label: 'Souligné', style: 'text-decoration: underline;', type: 'style' },
+            { code: '§r', label: 'Reset', style: 'all: unset; color: inherit;', type: 'style' },
+        ];
+
+        const input = document.getElementById('motd-input');
+        const preview = document.getElementById('motd-preview');
+
+        // Initialisation des boutons de formatage
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttonContainer = document.getElementById('format-buttons');
+            formatCodes.forEach(item => {
+                const button = document.createElement('button');
+                button.textContent = item.label;
+                button.className = 'py-2 rounded-lg text-xs font-semibold hover:opacity-80 transition duration-150';
+                
+                if (item.type === 'color') {
+                    // Utiliser le code de couleur Minecraft pour le fond du bouton
+                    button.style.backgroundColor = item.color;
+                    // Déterminer la couleur du texte (Noir ou Blanc)
+                    const isDark = parseInt(item.color.substring(1), 16) < 0x808080;
+                    button.style.color = isDark ? 'white' : 'black';
+                } else if (item.type === 'style') {
+                    // Styles pour les boutons de formatage (Gras, Italique, etc.)
+                    button.className += ' bg-gray-600 text-white';
+                    button.style.cssText += item.style;
+                }
+                
+                button.onclick = () => insertCode(item.code);
+                buttonContainer.appendChild(button);
+            });
+            
+            // Écoute des changements dans la zone de texte
+            input.addEventListener('input', updatePreview);
+            updatePreview(); // Afficher le placeholder initial
+        });
+
+        // Fonction pour insérer le code au niveau du curseur
+        function insertCode(code) {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            
+            input.value = text.substring(0, start) + code + text.substring(end);
+            input.focus();
+            input.selectionEnd = start + code.length;
+            updatePreview();
+        }
+
+        // Fonction pour copier le MOTD brut dans le presse-papiers
+        function copyMOTD() {
+            const motdText = input.value;
+             try {
+                // Utiliser document.execCommand('copy') pour la compatibilité iframe
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = motdText;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
+                alertMessage('MOTD copié dans le presse-papiers !', false); // Utilisation d'une simulation d'alerte
+            } catch (err) {
+                alertMessage('Impossible de copier. Veuillez copier manuellement.', true);
+            }
+        }
+        
+        // Simulation d'une alerte (car alert() est interdit)
+        function alertMessage(message, isError) {
+             const alertBox = document.createElement('div');
+             alertBox.textContent = message;
+             alertBox.className = isError 
+                 ? 'fixed top-4 right-4 p-3 rounded-lg bg-red-600 text-white shadow-xl z-50 transition-opacity duration-300'
+                 : 'fixed top-4 right-4 p-3 rounded-lg bg-green-600 text-white shadow-xl z-50 transition-opacity duration-300';
+             document.body.appendChild(alertBox);
+             setTimeout(() => {
+                 alertBox.style.opacity = '0';
+                 setTimeout(() => alertBox.remove(), 300);
+             }, 3000);
+        }
+
+        // Fonction de rendu de l'aperçu
+        function updatePreview() {
+            let motd = input.value || "§eBienvenue §r§l§bsur CraftKit !";
+            const segments = [];
+            let currentText = '';
+            let currentColor = '#FFFFFF'; // Blanc par défaut
+            let currentStyle = '';
+
+            // Map des codes de style et couleur
+            const colorMap = formatCodes.filter(c => c.type === 'color').reduce((acc, curr) => ({ ...acc, [curr.code]: curr.color }), {});
+            const styleMap = formatCodes.filter(c => c.type === 'style' && curr.code !== '§r').reduce((acc, curr) => ({ ...acc, [curr.code]: curr.style }), {});
+
+            // Remplacer les sauts de ligne par un code temporaire pour faciliter le traitement
+            motd = motd.replace(/\n/g, '§\n§');
+
+            for (let i = 0; i < motd.length; i++) {
+                const char = motd[i];
+                
+                // Si on trouve un code de formatage
+                if (char === '§' && i + 1 < motd.length) {
+                    const code = motd.substring(i, i + 2);
+
+                    // 1. Enregistrer le segment précédent
+                    if (currentText.length > 0) {
+                        segments.push(`<span style="color: ${currentColor}; ${currentStyle}">${currentText}</span>`);
+                        currentText = '';
+                    }
+
+                    // 2. Traiter le nouveau code
+                    if (colorMap[code]) {
+                        currentColor = colorMap[code];
+                    } else if (styleMap[code]) {
+                        currentStyle += styleMap[code];
+                    } else if (code === '§r') {
+                        // Reset: réinitialiser couleur et style
+                        currentColor = '#FFFFFF';
+                        currentStyle = '';
+                    } else if (code === '§\n') {
+                         // Traiter le saut de ligne
+                        segments.push('<br>');
+                    }
+                    
+                    i++; // Sauter le caractère suivant (le code)
+                } else {
+                    currentText += char;
+                }
+            }
+
+            // Ajouter le dernier segment (s'il existe)
+            if (currentText.length > 0) {
+                segments.push(`<span style="color: ${currentColor}; ${currentStyle}">${currentText}</span>`);
+            }
+            
+            // Afficher le résultat
+            preview.innerHTML = segments.join('');
+        }
+    </script>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-700/50 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center text-gray-500">
+            <p>&copy; 2025 CraftKit. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
