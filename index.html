@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CraftKit | Le Toolkit Ultime pour Serveurs Minecraft</title>
+    <!-- Chargement du CDN de Tailwind CSS pour un style moderne et réactif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Configuration Tailwind pour utiliser la police Inter */
+        html { font-family: 'Inter', sans-serif; }
+        .minecraft-shadow {
+            text-shadow: 2px 2px 0 #1f2937, 4px 4px 0 #374151;
+        }
+        .text-neon-blue { color: #3b82f6; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 antialiased">
+
+    <!-- Navbar -->
+    <header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur-sm shadow-lg">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <!-- Logo et Titre du Projet -->
+            <a href="#" class="flex items-center space-x-2">
+                <!-- Icône simple de craft/outil -->
+                <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 100 4m-3 12h2m-6-10h4m-2 4h4m-2 4h2M5 16h2m10 0h2m-6 4a2 2 0 100 4m-3-12h2m-6 0h4m-2 4h4m-2 4h2"></path></svg>
+                <span class="text-2xl font-extrabold text-white">Craft<span class="text-yellow-400">Kit</span></span>
+            </a>
+            
+            <!-- Navigation et Espace Membre -->
+            <div class="flex items-center space-x-4">
+                <a href="#tools" class="hidden sm:inline-block text-gray-300 hover:text-yellow-400 transition duration-300">Outils</a>
+                <a href="#community" class="hidden sm:inline-block text-gray-300 hover:text-yellow-400 transition duration-300">Communauté</a>
+                
+                <!-- Bouton d'Authentification -->
+                <a href="#" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg shadow-xl transition duration-300 transform hover:scale-105">
+                    Se Connecter / S'inscrire
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        
+        <!-- Section Héro : Slogan et Présentation Principale -->
+        <section class="relative pt-16 pb-24 lg:pt-32 lg:pb-40 text-center overflow-hidden">
+            <div class="absolute inset-0 opacity-10" style="background-image: url('https://placehold.co/1200x600/111827/ffffff?text=Minecraft+Pattern'); background-size: cover;"></div>
+            <div class="container mx-auto px-4 relative z-10">
+                <h1 class="text-5xl sm:text-7xl lg:text-8xl font-black mb-6 leading-tight text-white minecraft-shadow">
+                    CraftKit : Le Toolkit <span class="text-yellow-400">Ultime</span> pour Serveurs Minecraft
+                </h1>
+                <p class="text-xl sm:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto">
+                    Créez, optimisez et propulsez votre expérience Minecraft. Que vous soyez joueur, admin ou développeur, simplifiez la gestion de votre monde.
+                </p>
+                <!-- CTA Principal -->
+                <button class="bg-yellow-400 text-gray-900 font-extrabold py-3 px-8 text-lg rounded-xl transition duration-300 hover:bg-yellow-300 shadow-2xl shadow-yellow-500/50 transform hover:scale-105">
+                    Démarrer Gratuitement
+                </button>
+            </div>
+        </section>
+
+        <!-- Section Outils Clés -->
+        <section id="tools" class="py-20 lg:py-32 bg-gray-800">
+            <div class="container mx-auto px-4">
+                <h2 class="text-4xl sm:text-5xl font-extrabold text-center mb-16 text-white">
+                    🛠️ Nos Outils Clés – Simplifiez l'Administration
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    
+                    <!-- Outil 1: Calculateur de RAM -->
+                    <div class="bg-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-yellow-400 transition duration-300">
+                        <svg class="w-12 h-12 mb-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1v-3.25m-7.25-14A2.75 2.75 0 0113.5 10v4M12 4a2 2 0 100 4m-3 12h2m-6-10h4m-2 4h4m-2 4h2M5 16h2m10 0h2m-6 4a2 2 0 100 4m-3-12h2m-6 0h4m-2 4h4m-2 4h2"></path></svg>
+                        <h3 class="text-2xl font-bold mb-3 text-yellow-400">Calculateur de RAM</h3>
+                        <p class="text-gray-400">Ne gaspillez plus de ressources ! Obtenez une estimation précise de la mémoire nécessaire pour votre serveur (Vanilla, Moddé ou Plugins) et assurez un TPS parfait.</p>
+                        <a href="#" class="mt-4 inline-block text-yellow-400 font-semibold hover:text-yellow-300">Accéder au Calculateur &rarr;</a>
+                    </div>
+                    
+                    <!-- Outil 2: Générateur de MOTD -->
+                    <div class="bg-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-yellow-400 transition duration-300">
+                        <svg class="w-12 h-12 mb-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 5h10M4 15h16M8 20h8"></path></svg>
+                        <h3 class="text-2xl font-bold mb-3 text-yellow-400">Générateur de MOTD</h3>
+                        <p class="text-gray-400">Créez un Message Du Jour (MOTD) dynamique et accrocheur avec codes couleurs (Symbole $\S$), styles et aperçu en temps réel. Faites briller votre serveur dans la liste !</p>
+                        <a href="#" class="mt-4 inline-block text-yellow-400 font-semibold hover:text-yellow-300">Créer mon MOTD &rarr;</a>
+                    </div>
+
+                    <!-- Outil 3: Annuaire de Plugins & Serveurs -->
+                    <div class="bg-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-yellow-400 transition duration-300">
+                        <svg class="w-12 h-12 mb-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                        <h3 class="text-2xl font-bold mb-3 text-yellow-400">Plugins & Serveurs</h3>
+                        <p class="text-gray-400">Accédez à notre annuaire des meilleures extensions (Spigot/Paper) et trouvez des serveurs exceptionnels pour de nouvelles aventures captivantes.</p>
+                        <a href="#" class="mt-4 inline-block text-yellow-400 font-semibold hover:text-yellow-300">Explorer la Communauté &rarr;</a>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Adhésion (Login/Register CTA) -->
+        <section id="register" class="py-20 lg:py-32 bg-gray-900">
+            <div class="container mx-auto px-4 text-center max-w-4xl">
+                <h2 class="text-4xl sm:text-5xl font-extrabold mb-4 text-white">
+                    🔒 Débloquez la Puissance Pro
+                </h2>
+                <p class="text-xl text-gray-400 mb-8">
+                    Créez votre compte gratuit CraftKit pour sauvegarder vos projets, accéder à l'historique de vos créations et débloquer des outils d'administration avancés.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="#" class="w-full sm:w-auto px-10 py-4 bg-yellow-400 text-gray-900 font-extrabold rounded-xl transition duration-300 hover:bg-yellow-300 shadow-2xl transform hover:scale-105">
+                        S'inscrire (C'est rapide !)
+                    </a>
+                    <a href="#" class="w-full sm:w-auto px-10 py-4 border border-gray-600 text-white font-extrabold rounded-xl transition duration-300 hover:bg-gray-700 transform hover:scale-105">
+                        Se Connecter
+                    </a>
+                </div>
+                
+                <!-- Placeholder pour le statut Admin -->
+                <p class="mt-8 text-gray-500 text-sm">
+                    Vous êtes un partenaire ou un administrateur vérifié ? Votre compte Admin vous attend après connexion.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-700/50 py-8">
+        <div class="container mx-auto px-4 text-center text-gray-500">
+            <p>&copy; 2025 CraftKit. Tous droits réservés.</p>
+            <div class="mt-4 space-x-4">
+                <a href="#" class="hover:text-yellow-400">À propos</a>
+                <a href="#" class="hover:text-yellow-400">Contact</a>
+                <a href="#" class="hover:text-yellow-400">CGU</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
+
