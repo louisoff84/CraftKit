@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panneau d'Administration - CraftKit</title>
+    <!-- Chargement du CDN de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        html { font-family: 'Inter', sans-serif; }
+        /* Style pour les boutons d'action dans le tableau */
+        .action-btn {
+            @apply px-3 py-1 text-xs font-semibold rounded-lg transition duration-150;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 antialiased min-h-screen">
+
+    <!-- Wrapper principal pour la mise en page latérale/contenu -->
+    <div class="flex">
+
+        <!-- Barre Latérale (Sidebar) - Fixe pour le Bureau, Responsive pour Mobile -->
+        <aside id="sidebar" class="fixed z-40 lg:relative h-screen bg-gray-800 w-64 p-5 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            
+            <!-- Logo/Titre Admin -->
+            <div class="mb-10 flex items-center space-x-2 border-b border-gray-700 pb-4">
+                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <span class="text-xl font-extrabold text-white">Admin <span class="text-red-500">Panel</span></span>
+            </div>
+
+            <!-- Liens de Navigation -->
+            <nav class="space-y-2">
+                <a href="#dashboard" class="flex items-center space-x-3 p-3 rounded-lg bg-gray-700 text-yellow-400 font-semibold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    <span>Tableau de Bord</span>
+                </a>
+                <a href="#users" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20h5v-2a3 3 0 00-5.356-1.857"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20V10m0 0h-2M9 10H5M7 10v10M21 16v-2a3 3 0 00-3-3H7a3 3 0 00-3 3v2m17-3h-4m-7 4v-4m0 0h-2m2 0H9m2-4V4m-2 2h4"></path></svg>
+                    <span>Gestion des Utilisateurs</span>
+                </a>
+                <a href="#content" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>Gestion du Contenu</span>
+                </a>
+                <a href="#settings" class="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.42-.42.92-.617 1.417-.617.498 0 .997.197 1.417.617l.035.035a1 1 0 010 1.414l-.035.035c-.42.42-.92.617-1.417.617-.498 0-.997-.197-1.417-.617l-.035-.035a1 1 0 010-1.414l.035-.035z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21.75l-1.375-1.375a2 2 0 010-2.828l2.75-2.75a2 2 0 012.828 0l2.75 2.75a2 2 0 010 2.828L15 21.75M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <span>Paramètres du Site</span>
+                </a>
+            </nav>
+
+            <!-- Déconnexion -->
+            <div class="mt-auto pt-4 border-t border-gray-700">
+                <a href="index.html" class="flex items-center space-x-3 p-3 rounded-lg text-red-400 hover:bg-gray-700 font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    <span>Déconnexion</span>
+                </a>
+            </div>
+
+        </aside>
+
+        <!-- Contenu Principal -->
+        <main class="flex-1 lg:ml-64 p-4 sm:p-8">
+            
+            <!-- Bouton Hamburger (Mobile Uniquement) -->
+            <button id="menu-toggle" class="lg:hidden fixed top-4 left-4 z-50 p-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition duration-300">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            
+            <header class="mb-8">
+                <h1 class="text-3xl font-bold text-white">Tableau de Bord Administrateur</h1>
+                <p class="text-gray-400">Bienvenue, Admin. Vue d'ensemble des opérations de CraftKit.</p>
+            </header>
+
+            <!-- Section 1: Statistiques Clés -->
+            <section id="dashboard" class="mb-12">
+                <h2 class="text-2xl font-semibold mb-6 text-yellow-400">Statistiques en Temps Réel</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                    
+                    <!-- Carte 1: Utilisateurs Totaux -->
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                        <p class="text-sm font-medium text-gray-400">Utilisateurs Enregistrés</p>
+                        <p class="text-4xl font-extrabold text-white mt-1" id="stat-users">12,548</p>
+                        <p class="text-sm text-green-400 mt-2">+12% cette semaine</p>
+                    </div>
+
+                    <!-- Carte 2: MOTD Générés -->
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                        <p class="text-sm font-medium text-gray-400">MOTD Générés</p>
+                        <p class="text-4xl font-extrabold text-white mt-1" id="stat-motd">45,901</p>
+                        <p class="text-sm text-yellow-400 mt-2">Stabilité constante</p>
+                    </div>
+
+                    <!-- Carte 3: Plugins Référencés -->
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                        <p class="text-sm font-medium text-gray-400">Plugins Référencés</p>
+                        <p class="text-4xl font-extrabold text-white mt-1" id="stat-plugins">1,087</p>
+                        <p class="text-sm text-blue-400 mt-2">+34 nouveaux ce mois</p>
+                    </div>
+
+                    <!-- Carte 4: Utilisateurs Actifs (24h) -->
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                        <p class="text-sm font-medium text-gray-400">Actifs 24h</p>
+                        <p class="text-4xl font-extrabold text-white mt-1" id="stat-active">2,104</p>
+                        <p class="text-sm text-red-400 mt-2">-5% par rapport à hier</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 2: Gestion des Utilisateurs -->
+            <section id="users">
+                <h2 class="text-2xl font-semibold mb-6 text-yellow-400">Gestion des Utilisateurs</h2>
+
+                <!-- Tableau des Utilisateurs -->
+                <div class="bg-gray-800 rounded-xl shadow-lg overflow-x-auto border border-gray-700">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">ID Utilisateur</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Pseudo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Rôle</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody" class="divide-y divide-gray-700">
+                            <!-- Les lignes seront insérées ici par JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modèle de boîte de message -->
+                <div id="messageBox" class="fixed top-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-xl z-50 transition-opacity duration-300 hidden opacity-0"></div>
+
+            </section>
+            
+            <!-- Section 3: Espace pour le Contenu et les Paramètres -->
+            <section id="content" class="mt-12 hidden">
+                <h2 class="text-2xl font-semibold mb-6 text-yellow-400">Gestion du Contenu (Simulé)</h2>
+                <div class="bg-gray-800 p-6 rounded-xl shadow-lg text-gray-400">
+                    <p>Ici, vous pourriez éditer les descriptions des plugins, valider les nouveaux serveurs listés ou mettre à jour les articles de blog.</p>
+                </div>
+            </section>
+            
+            <section id="settings" class="mt-12 hidden">
+                <h2 class="text-2xl font-semibold mb-6 text-yellow-400">Paramètres du Site (Simulé)</h2>
+                <div class="bg-gray-800 p-6 rounded-xl shadow-lg text-gray-400">
+                    <p>Configuration des clés API, gestion des traductions, ou modification des variables environnementales.</p>
+                </div>
+            </section>
+            
+        </main>
+    </div>
+
+    <!-- JavaScript pour la logique du Panneau Admin -->
+    <script>
+        // Simulation des données utilisateurs
+        let users = [
+            { id: '1A2B3C', username: 'Admin_Craft', email: 'admin@craftkit.dev', role: 'Administrateur' },
+            { id: '4D5E6F', username: 'Serveur_Maxi', email: 'maxi.server@test.com', role: 'Membre' },
+            { id: '7G8H9I', username: 'Plugin_Dev', email: 'dev@plugin.io', role: 'Membre' },
+            { id: '0J1K2L', username: 'Gamer_Pro', email: 'pro@gamer.net', role: 'Membre' },
+            { id: '3M4N5O', username: 'BetaTester', email: 'beta@craft.com', role: 'Membre' },
+        ];
+
+        // Fonction pour afficher un message temporaire (remplace alert())
+        function showMessage(text, isError = false) {
+            const box = document.getElementById('messageBox');
+            box.textContent = text;
+            box.className = `fixed top-4 right-4 text-white p-4 rounded-lg shadow-xl z-50 transition-opacity duration-300 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+            box.classList.remove('hidden', 'opacity-0');
+            box.classList.add('opacity-100');
+
+            setTimeout(() => {
+                box.classList.remove('opacity-100');
+                box.classList.add('opacity-0');
+                setTimeout(() => box.classList.add('hidden'), 300);
+            }, 3000);
+        }
+
+        // Fonction pour rendre le tableau des utilisateurs
+        function renderUserTable() {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = ''; // Nettoyer l'ancien contenu
+
+            users.forEach(user => {
+                const isAdministrator = user.role === 'Administrateur';
+                const row = document.createElement('tr');
+                row.id = `user-row-${user.id}`;
+                row.className = 'hover:bg-gray-700/50 transition duration-150';
+
+                // Déterminer la couleur de la puce de rôle
+                const roleColor = isAdministrator ? 'bg-red-500 text-white' : 'bg-green-500 text-gray-900';
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-400">${user.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">${user.username}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${user.email}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${roleColor}">
+                            ${user.role}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <button onclick="toggleRole('${user.id}')" 
+                                class="action-btn ${isAdministrator ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-red-500 hover:bg-red-600'} text-gray-900">
+                            ${isAdministrator ? 'Rétrograder' : 'Promouvoir'}
+                        </button>
+                        <button onclick="deleteUser('${user.id}')" 
+                                class="action-btn bg-gray-600 hover:bg-gray-700 text-white">
+                            Supprimer
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Fonction pour changer le rôle de l'utilisateur (Simulé)
+        function toggleRole(userId) {
+            const userIndex = users.findIndex(u => u.id === userId);
+            if (userIndex !== -1) {
+                const user = users[userIndex];
+                if (user.id === '1A2B3C') {
+                    showMessage("Impossible de modifier le rôle du super administrateur (Simulation).", true);
+                    return;
+                }
+                user.role = user.role === 'Administrateur' ? 'Membre' : 'Administrateur';
+                renderUserTable();
+                showMessage(`Rôle de ${user.username} mis à jour vers : ${user.role}.`);
+            }
+        }
+
+        // Fonction pour supprimer l'utilisateur (Simulé)
+        function deleteUser(userId) {
+            const userIndex = users.findIndex(u => u.id === userId);
+            if (userIndex !== -1) {
+                 if (users[userIndex].id === '1A2B3C') {
+                    showMessage("Impossible de supprimer le super administrateur (Simulation).", true);
+                    return;
+                }
+                const deletedUsername = users[userIndex].username;
+                users.splice(userIndex, 1);
+                renderUserTable();
+                showMessage(`Utilisateur ${deletedUsername} a été supprimé (Simulation).`);
+            }
+        }
+        
+        // Logique de la barre latérale pour mobile
+        document.addEventListener('DOMContentLoaded', () => {
+            renderUserTable();
+            
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menu-toggle');
+            
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+            
+            // Masquer la barre latérale après un clic sur un lien (sur mobile)
+            sidebar.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) { // 1024px est le breakpoint 'lg' de tailwind
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                });
+            });
+            
+            // Simple logique de navigation (afficher/masquer les sections)
+            const sections = document.querySelectorAll('main section');
+            const navLinks = sidebar.querySelectorAll('nav a');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    
+                    sections.forEach(section => {
+                        if (section.id === targetId) {
+                            section.classList.remove('hidden');
+                        } else {
+                            section.classList.add('hidden');
+                        }
+                    });
+                    
+                    // Mettre à jour l'état actif dans la sidebar
+                    navLinks.forEach(nav => nav.classList.remove('bg-gray-700', 'text-yellow-400'));
+                    navLinks.forEach(nav => nav.classList.add('text-gray-300', 'hover:bg-gray-700', 'hover:text-white'));
+                    link.classList.add('bg-gray-700', 'text-yellow-400');
+                    link.classList.remove('text-gray-300', 'hover:bg-gray-700', 'hover:text-white');
+                });
+            });
+            
+        });
+    </script>
+</body>
+</html>
+
