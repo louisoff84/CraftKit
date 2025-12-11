@@ -35,17 +35,39 @@
             <input type="text" id="searchInput" placeholder="Rechercher par nom..." 
                    class="flex-grow p-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-yellow-500 focus:ring focus:ring-yellow-500/50 text-white placeholder-gray-500">
             
-            <select id="platformFilter" class="p-3 rounded-lg bg-gray-800 border border-gray-700 text-white">
-                <option value="">Plateforme (Tous)</option>
-                <option value="fabric">Fabric</option>
-                <option value="forge">Forge</option>
-                <option value="bukkit">Bukkit / Spigot</option>
+            <!-- Filtre pour la Version de Minecraft -->
+            <select id="versionFilter" class="p-3 rounded-lg bg-gray-800 border border-gray-700 text-white">
+                <option value="">Version (Toutes)</option>
+                <option value="1.21">1.21</option>
+                <option value="1.20.6">1.20.6</option>
+                <option value="1.20.4">1.20.4</option>
+                <option value="1.20.1">1.20.1</option>
+                <option value="1.19.4">1.19.4</option>
+                <option value="1.19.2">1.19.2</option>
+                <option value="1.18.2">1.18.2</option>
+                <option value="1.16.5">1.16.5</option>
+                <option value="1.12.2">1.12.2</option>
+            </select>
+
+            <!-- Filtre pour le Type de Chargeur/Plateforme (Détaillé) -->
+            <select id="loaderFilter" class="p-3 rounded-lg bg-gray-800 border border-gray-700 text-white">
+                <option value="">Type de Serveur (Tous)</option>
+                <option value="fabric">Fabric (Modding Client/Serveur)</option>
+                <option value="forge">Forge (Modding Client/Serveur)</option>
+                <option value="neoforge">NeoForge (Modding Client/Serveur)</option>
+                <option value="quilt">Quilt (Modding Client/Serveur)</option>
+                <option value="paper">Paper/Spigot (Serveur Plugin)</option>
+                <option value="bukkit">Bukkit (Serveur Plugin)</option>
+                <option value="spigot">Spigot (Serveur Plugin)</option>
+                <option value="bungeecord">Bungeecord (Proxy Réseau)</option>
+                <option value="velocity">Velocity (Proxy Réseau)</option>
             </select>
             
+            <!-- Filtre pour le Type de Projet (Mod, Plugin, Modpack) -->
             <select id="typeFilter" class="p-3 rounded-lg bg-gray-800 border border-gray-700 text-white">
-                <option value="">Type (Tous)</option>
-                <option value="mod">Mod</option>
-                <option value="plugin">Plugin</option>
+                <option value="">Type de Projet (Tous)</option>
+                <option value="mod">Mod (Client/Forge/Fabric...)</option>
+                <option value="plugin">Plugin (Spigot/Paper...)</option>
                 <option value="modpack">Modpack</option>
             </select>
         </div>
@@ -75,17 +97,19 @@
     </footer>
 
     <script>
-        // French comments for clarity:
+        // Constants et Variables globales
         const MODRINTH_API = "https://api.modrinth.com/v2/search";
-        const MODS_PER_PAGE = 20; // Nombre de mods à charger par requête
+        const MODS_PER_PAGE = 20; 
         let currentPage = 0;
         let isFetching = false;
-        let lastQuery = '';
 
+        // Éléments DOM
         const modsContainer = document.getElementById('modsContainer');
         const searchInput = document.getElementById('searchInput');
-        const platformFilter = document.getElementById('platformFilter');
-        const typeFilter = document.getElementById('typeFilter');
+        const versionFilter = document.getElementById('versionFilter');
+        const loaderFilter = document.getElementById('loaderFilter');
+        const typeFilter = document.getElementById('typeFilter'); 
+        
         const loadMoreButton = document.getElementById('loadMoreButton');
         const loadingIndicator = document.getElementById('loadingIndicator');
 
@@ -107,7 +131,6 @@
 
         /**
          * Construit une carte HTML pour un mod/plugin.
-         * @param {Object} mod - Données du projet Modrinth.
          */
         function createModCard(mod) {
             const card = document.createElement('a');
@@ -115,16 +138,13 @@
             card.target = "_blank";
             card.className = "block bg-gray-800 rounded-xl shadow-2xl p-4 transition duration-300 hover:bg-gray-700/70 transform hover:scale-[1.02]";
 
-            // Utilisation d'un placeholder si l'icône est manquante
             const iconUrl = mod.icon_url || 'https://placehold.co/64x64/2d3748/fff?text=MK';
             
-            // Formatage de la date de mise à jour
             const dateUpdate = new Date(mod.date_modified).toLocaleDateString('fr-FR', {
                 year: 'numeric', month: 'short', day: 'numeric'
             });
 
-            // FIX: Utiliser (mod.game_versions || []) pour s'assurer que .slice est appelé sur un tableau
-            // Affichage des plateformes (tags) - limité aux 3 premières versions de jeu pour la concision
+            // Utilisation de (mod.game_versions || []) pour éviter l'erreur de "slice"
             const platformTags = (mod.game_versions || []).slice(0, 3).map(v => 
                 `<span class="inline-block bg-gray-700 text-xs font-semibold px-2 py-1 rounded-full">${v}</span>`
             ).join('');
@@ -150,39 +170,49 @@
         }
 
         /**
-         * Construit l'URL de recherche pour Modrinth.
+         * Construit l'URL de recherche pour Modrinth avec tous les filtres.
          */
-        function buildQueryUrl(offset, limit, query, platform, type) {
+        function buildQueryUrl(offset, limit, query, version, loader, type) {
             let url = new URL(MODRINTH_API);
             let facets = [];
 
-            // Facette pour le type (mod, plugin, etc.)
+            // 1. Facette pour le Type de Projet (Mod, Plugin, Modpack) - OR logic
+            let projectTypes = [];
             if (type) {
-                facets.push(`["project_type:${type}"]`);
+                projectTypes.push(`project_type:${type}`);
             } else {
-                // Par défaut, nous voulons mod, plugin et modpack
-                facets.push(`["project_type:mod", "project_type:plugin", "project_type:modpack"]`);
+                projectTypes.push("project_type:mod", "project_type:plugin", "project_type:modpack");
+            }
+            if (projectTypes.length > 0) {
+                facets.push(projectTypes);
             }
             
-            // Facette pour la plateforme (si spécifiée)
-            if (platform) {
-                // Note: Modrinth utilise 'loader' pour Fabric/Forge et 'category' pour Spigot/Bukkit
-                facets.push(`["categories:${platform}"]`); 
+            // 2. Facette pour la Version de Minecraft - AND logic
+            if (version) {
+                facets.push([`versions:${version}`]);
             }
+
+            // 3. Facette pour le Type de Chargeur/Plateforme (Loader/Category) - AND logic
+            if (loader) {
+                // Remarque : Modrinth utilise 'categories' pour tous les types de chargeurs/plateformes
+                facets.push([`categories:${loader}`]);
+            }
+
+            // Construction finale de la chaîne de facettes, encodée en JSON.
+            const facetString = JSON.stringify(facets);
 
             // Paramètres de l'API
             url.searchParams.set('offset', offset);
             url.searchParams.set('limit', limit);
             url.searchParams.set('index', 'downloads'); // Tri par popularité (downloads)
             url.searchParams.set('query', query || '');
-            url.searchParams.set('facets', `[${facets.join(',')}]`);
+            url.searchParams.set('facets', facetString);
             
             return url.toString();
         }
 
         /**
          * Charge les mods depuis l'API Modrinth et les affiche.
-         * @param {boolean} clear - Vrai pour effacer les résultats existants.
          */
         async function loadMods(clear = false) {
             if (isFetching) return;
@@ -196,11 +226,12 @@
             }
 
             const query = searchInput.value.trim();
-            const platform = platformFilter.value;
+            const version = versionFilter.value;
+            const loader = loaderFilter.value;
             const type = typeFilter.value;
 
-            // Construit l'URL avec les filtres actuels
-            const url = buildQueryUrl(currentPage * MODS_PER_PAGE, MODS_PER_PAGE, query, platform, type);
+            // Construit l'URL
+            const url = buildQueryUrl(currentPage * MODS_PER_PAGE, MODS_PER_PAGE, query, version, loader, type);
 
             try {
                 const data = await fetchWithBackoff(url);
@@ -211,14 +242,10 @@
                     });
                     currentPage++;
                     
-                    // Si le nombre de résultats reçus est inférieur à la limite, c'est la fin.
                     if (data.hits.length < MODS_PER_PAGE) {
                          loadingIndicator.textContent = "Fin des résultats.";
-                         // Nous gardons le bouton caché car l'Infinite Scroll est actif
                     } else {
-                         // Prépare le bouton pour le prochain chargement
                          loadingIndicator.textContent = "";
-                         // Le bouton reste caché, l'IntersectionObserver va s'en charger
                     }
 
                 } else if (clear) {
@@ -228,8 +255,9 @@
                 }
 
             } catch (error) {
-                console.error("Erreur lors de la récupération des mods:", error);
-                loadingIndicator.textContent = "Erreur de chargement. Veuillez réessayer.";
+                // En cas d'erreur de l'API (souvent due à des facettes mal formées ou un timeout)
+                console.error("Erreur critique lors de la récupération des mods:", error);
+                loadingIndicator.textContent = "Erreur de chargement. Veuillez réessayer. (Vérifiez les filtres)";
             } finally {
                 isFetching = false;
             }
@@ -249,20 +277,19 @@
 
         // Événements d'écoute pour la recherche et les filtres
         searchInput.addEventListener('input', handleSearchOrFilterChange);
-        platformFilter.addEventListener('change', handleSearchOrFilterChange);
+        versionFilter.addEventListener('change', handleSearchOrFilterChange);
+        loaderFilter.addEventListener('change', handleSearchOrFilterChange);
         typeFilter.addEventListener('change', handleSearchOrFilterChange);
         loadMoreButton.addEventListener('click', () => loadMods(false)); // Bouton de secours
 
         /**
          * Configure l'observateur d'intersection pour le chargement infini.
-         * C'est la fonction qui implémente le chargement au fur et à mesure que l'utilisateur scroll.
          */
         function setupInfiniteScroll() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     // Si l'utilisateur voit la zone de chargement ET qu'aucune requête n'est déjà en cours
-                    // et que nous n'avons pas atteint la fin des résultats
-                    if (entry.isIntersecting && !isFetching && loadingIndicator.textContent !== "Fin des résultats." && loadingIndicator.textContent !== "Erreur de chargement. Veuillez réessayer.") {
+                    if (entry.isIntersecting && !isFetching && loadingIndicator.textContent === "") {
                         loadMods(false);
                     }
                 });
@@ -277,8 +304,6 @@
 
         // Initialisation: Chargement initial et mise en place de l'observateur
         window.onload = () => {
-            // Un premier chargement est fait à l'initialisation.
-            // Le second chargement sera déclenché par l'Infinite Scroll dès que la zone est visible.
             loadMods(true); 
             setupInfiniteScroll(); 
         };
@@ -287,3 +312,4 @@
 
 </body>
 </html>
+
