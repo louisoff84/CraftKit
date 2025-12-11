@@ -130,13 +130,89 @@
         }
 
         /**
+         * Gère le clic pour le téléchargement direct via une requête API pour trouver le lien CDN.
+         * @param {string} modId L'ID unique du projet Modrinth.
+         */
+        async function handleDownloadClick(modId) {
+            const versionName = versionFilter.value;
+            const loaderName = loaderFilter.value;
+
+            // 1. Vérification minimale : La version de Minecraft est cruciale pour trouver le bon fichier.
+            if (!versionName) {
+                // Remplacement de 'alert' par une modification de l'indicateur ou une alerte console.
+                loadingIndicator.textContent = "Veuillez sélectionner une version de Minecraft pour le téléchargement direct.";
+                setTimeout(() => { loadingIndicator.textContent = ""; }, 3000);
+                return; 
+            }
+            
+            // 2. Construction de l'URL pour obtenir la version la plus récente compatible
+            let url = new URL(`https://api.modrinth.com/v2/project/${modId}/version`);
+            
+            // Les filtres doivent être passés en tant que chaînes JSON encodées
+            url.searchParams.set('game_versions', JSON.stringify([versionName]));
+            
+            if (loaderName) {
+                url.searchParams.set('loaders', JSON.stringify([loaderName]));
+            }
+            
+            // 3. Récupération des versions
+            try {
+                // On met un petit message pour l'utilisateur
+                const originalText = loadingIndicator.textContent;
+                loadingIndicator.textContent = "Recherche du lien de téléchargement direct...";
+
+                const versions = await fetchWithBackoff(url.toString());
+
+                if (versions && versions.length > 0) {
+                    // La première version est la plus récente compatible
+                    const latestVersion = versions[0];
+                    // On prend le fichier principal, sinon le premier de la liste
+                    const primaryFile = latestVersion.files.find(f => f.primary) || latestVersion.files[0];
+
+                    if (primaryFile) {
+                        // 4. Redirection vers le lien CDN direct
+                        window.open(primaryFile.url, '_blank');
+                        loadingIndicator.textContent = originalText;
+                    } else {
+                        throw new Error("Aucun fichier valide trouvé.");
+                    }
+                } else {
+                    throw new Error("Aucune version compatible trouvée.");
+                }
+
+            } catch (error) {
+                console.error("Erreur lors de la récupération des versions:", error);
+                
+                // Affichage d'un message d'erreur utilisateur
+                const projectSlug = modsContainer.querySelector(`[data-id="${modId}"]`).dataset.slug;
+                loadingIndicator.textContent = `Erreur de téléchargement pour ${modId}. Redirection vers Modrinth...`;
+                
+                // Redirection vers la page du projet comme solution de repli
+                setTimeout(() => {
+                    window.open(`https://modrinth.com/project/${projectSlug}`, '_blank');
+                    loadingIndicator.textContent = originalText;
+                }, 1500);
+            }
+        }
+        
+        /**
          * Construit une carte HTML pour un mod/plugin.
          */
         function createModCard(mod) {
-            const card = document.createElement('a');
-            card.href = `https://modrinth.com/project/${mod.slug}`;
-            card.target = "_blank";
-            card.className = "block bg-gray-800 rounded-xl shadow-2xl p-4 transition duration-300 hover:bg-gray-700/70 transform hover:scale-[1.02]";
+            const projectUrl = `https://modrinth.com/project/${mod.slug}`;
+            const card = document.createElement('div'); 
+            card.dataset.id = mod.project_id; // Ajout de l'ID pour la fonction de téléchargement
+            card.dataset.slug = mod.slug;
+
+            card.className = "bg-gray-800 rounded-xl shadow-2xl p-4 transition duration-300 hover:bg-gray-700/70 transform hover:scale-[1.02] flex flex-col justify-between";
+            
+            // Permet d'ouvrir la page du projet Modrinth en cliquant sur le corps de la carte
+            card.addEventListener('click', (e) => {
+                // S'assurer que le clic n'était pas sur le bouton de téléchargement (pour éviter le double événement)
+                if (!e.target.closest('#downloadButton-' + mod.project_id)) {
+                    window.open(projectUrl, '_blank');
+                }
+            });
 
             const iconUrl = mod.icon_url || 'https://placehold.co/64x64/2d3748/fff?text=MK';
             
@@ -144,28 +220,41 @@
                 year: 'numeric', month: 'short', day: 'numeric'
             });
 
-            // Utilisation de (mod.game_versions || []) pour éviter l'erreur de "slice"
             const platformTags = (mod.game_versions || []).slice(0, 3).map(v => 
                 `<span class="inline-block bg-gray-700 text-xs font-semibold px-2 py-1 rounded-full">${v}</span>`
             ).join('');
 
             card.innerHTML = `
-                <div class="flex items-start space-x-4 mb-4">
-                    <img src="${iconUrl}" onerror="this.onerror=null; this.src='https://placehold.co/64x64/2d3748/fff?text=MK';" class="w-16 h-16 rounded-lg object-cover" alt="Icône de ${mod.title}">
-                    <div class="flex-grow text-left">
-                        <h3 class="text-lg font-bold text-yellow-400 group-hover:text-yellow-300">${mod.title}</h3>
-                        <p class="text-sm text-gray-400">${mod.project_type.charAt(0).toUpperCase() + mod.project_type.slice(1)}</p>
+                <div class="flex-grow">
+                    <div class="flex items-start space-x-4 mb-4 cursor-pointer">
+                        <img src="${iconUrl}" onerror="this.onerror=null; this.src='https://placehold.co/64x64/2d3748/fff?text=MK';" class="w-16 h-16 rounded-lg object-cover" alt="Icône de ${mod.title}">
+                        <div class="flex-grow text-left">
+                            <h3 class="text-lg font-bold text-yellow-400">${mod.title}</h3>
+                            <p class="text-sm text-gray-400">${mod.project_type.charAt(0).toUpperCase() + mod.project_type.slice(1)}</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 text-sm line-clamp-2 mb-3 h-10 cursor-pointer">${mod.description}</p>
+                    <div class="text-xs text-gray-500 mb-3 flex justify-between items-center cursor-pointer">
+                        <span>${mod.downloads} Téléchargements</span>
+                        <span>Mis à jour: ${dateUpdate}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4 cursor-pointer">
+                        ${platformTags}
                     </div>
                 </div>
-                <p class="text-gray-300 text-sm line-clamp-2 mb-3 h-10">${mod.description}</p>
-                <div class="text-xs text-gray-500 mb-3 flex justify-between items-center">
-                    <span>${mod.downloads} Téléchargements</span>
-                    <span>Mis à jour: ${dateUpdate}</span>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    ${platformTags}
-                </div>
+                
+                <!-- Bouton de téléchargement direct qui utilise le CDN.modrinth.com après l'appel API -->
+                <button id="downloadButton-${mod.project_id}" type="button" class="mt-2 block w-full text-center py-2 bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg transition duration-300 shadow-lg whitespace-nowrap">
+                    Télécharger Direct (CDN)
+                </button>
             `;
+            
+            // Attacher l'événement au bouton de téléchargement
+            card.querySelector(`#downloadButton-${mod.project_id}`).addEventListener('click', (e) => {
+                e.stopPropagation(); // Empêche l'événement de la carte d'être déclenché
+                handleDownloadClick(mod.project_id);
+            });
+            
             return card;
         }
 
@@ -194,7 +283,6 @@
 
             // 3. Facette pour le Type de Chargeur/Plateforme (Loader/Category) - AND logic
             if (loader) {
-                // Remarque : Modrinth utilise 'categories' pour tous les types de chargeurs/plateformes
                 facets.push([`categories:${loader}`]);
             }
 
@@ -255,7 +343,6 @@
                 }
 
             } catch (error) {
-                // En cas d'erreur de l'API (souvent due à des facettes mal formées ou un timeout)
                 console.error("Erreur critique lors de la récupération des mods:", error);
                 loadingIndicator.textContent = "Erreur de chargement. Veuillez réessayer. (Vérifiez les filtres)";
             } finally {
