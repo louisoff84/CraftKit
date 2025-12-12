@@ -131,17 +131,23 @@
 
         /**
          * Gère le clic pour le téléchargement direct via une requête API pour trouver le lien CDN.
+         * Utilise un élément <a> invisible avec l'attribut download pour forcer le téléchargement.
          * @param {string} modId L'ID unique du projet Modrinth.
          */
         async function handleDownloadClick(modId) {
             const versionName = versionFilter.value;
             const loaderName = loaderFilter.value;
+            let originalText = loadingIndicator.textContent; // Sauvegarder l'état original
 
             // 1. Vérification minimale : La version de Minecraft est cruciale pour trouver le bon fichier.
             if (!versionName) {
-                // Remplacement de 'alert' par une modification de l'indicateur ou une alerte console.
-                loadingIndicator.textContent = "Veuillez sélectionner une version de Minecraft pour le téléchargement direct.";
-                setTimeout(() => { loadingIndicator.textContent = ""; }, 3000);
+                // Rendre le message plus visible/insistant
+                loadingIndicator.textContent = "ERREUR : Version de Minecraft manquante. Sélectionnez une version pour télécharger.";
+                loadingIndicator.classList.add('text-red-400'); // Ajout d'une classe pour le style d'erreur
+                setTimeout(() => { 
+                    loadingIndicator.textContent = originalText;
+                    loadingIndicator.classList.remove('text-red-400'); // Retrait du style
+                }, 4000);
                 return; 
             }
             
@@ -158,7 +164,6 @@
             // 3. Récupération des versions
             try {
                 // On met un petit message pour l'utilisateur
-                const originalText = loadingIndicator.textContent;
                 loadingIndicator.textContent = "Recherche du lien de téléchargement direct...";
 
                 const versions = await fetchWithBackoff(url.toString());
@@ -170,9 +175,27 @@
                     const primaryFile = latestVersion.files.find(f => f.primary) || latestVersion.files[0];
 
                     if (primaryFile) {
-                        // 4. Redirection vers le lien CDN direct
-                        window.open(primaryFile.url, '_blank');
-                        loadingIndicator.textContent = originalText;
+                        // L'API Modrinth fournit l'URL complète du CDN (ex: https://cdn.modrinth.com/data/...)
+                        const cdnUrl = primaryFile.url;
+                        console.log("URL de téléchargement CDN utilisée:", cdnUrl); 
+
+                        // 4. Force le téléchargement via un élément <a> invisible
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = cdnUrl;
+                        downloadLink.download = primaryFile.filename; // Force le nom du fichier
+                        // downloadLink.target = '_blank'; // Suppression pour maximiser la compatibilité
+                        downloadLink.style.display = 'none';
+
+                        document.body.appendChild(downloadLink);
+                        
+                        // Déclenchement du clic avec un léger délai (0ms) pour s'assurer que l'élément est bien dans le DOM
+                        setTimeout(() => {
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+                        }, 0); 
+                        
+                        loadingIndicator.textContent = "Téléchargement initié. Vérifiez vos téléchargements.";
+                        setTimeout(() => { loadingIndicator.textContent = originalText; }, 3000);
                     } else {
                         throw new Error("Aucun fichier valide trouvé.");
                     }
@@ -183,9 +206,9 @@
             } catch (error) {
                 console.error("Erreur lors de la récupération des versions:", error);
                 
-                // Affichage d'un message d'erreur utilisateur
+                // Affichage d'un message d'erreur utilisateur et repli
                 const projectSlug = modsContainer.querySelector(`[data-id="${modId}"]`).dataset.slug;
-                loadingIndicator.textContent = `Erreur de téléchargement pour ${modId}. Redirection vers Modrinth...`;
+                loadingIndicator.textContent = `Erreur de téléchargement. Redirection vers Modrinth...`;
                 
                 // Redirection vers la page du projet comme solution de repli
                 setTimeout(() => {
@@ -209,7 +232,7 @@
             // Permet d'ouvrir la page du projet Modrinth en cliquant sur le corps de la carte
             card.addEventListener('click', (e) => {
                 // S'assurer que le clic n'était pas sur le bouton de téléchargement (pour éviter le double événement)
-                if (!e.target.closest('#downloadButton-' + mod.project_id)) {
+                if (!e.target.closest('button')) {
                     window.open(projectUrl, '_blank');
                 }
             });
